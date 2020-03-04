@@ -1,0 +1,364 @@
+# The following script will do three things. Firstly it will create individual graphs of five 
+# books by Mark Twain.
+# Secondly it will create one graph with the the total sentiment of the selected works by Mark # Twain. 
+# Thirdly it will create graphical comparisons of the top 10 most used negative and positive 
+# words per book. 
+# The aim is to create a visual overview of the sentiment values of the works using the
+# program RStudio and some extra
+# packages that are available through it. 
+
+
+####### PHASE ONE ########
+# Getting the required software and doing sentiment analysis for every book separately. 
+
+# Packages to install below.
+# In case packages are missing uncomment (remove "#") the following lines in order to install the packages:
+#install.packages("tidyverse")
+#install.packages("tidytext")
+#install.packages("gutenbergr")
+#install.packages("ggplot2")
+#install.packages("dplyr")
+#install.packages("stringr")
+
+
+# The following commands load (activate) the required packages. This needs to be done every time one starts RStudio:
+
+library(tidyverse)
+library(tidytext)
+library(gutenbergr)
+library(ggplot2)
+library(dplyr)
+library(stringr)
+
+
+# The next line shows all the authors with the name "Twain".
+# One can see that Mark Twain's Gutenberg ID is 53 
+
+gutenberg_authors[grep("Twain",gutenberg_authors$author),]
+
+# Using Mark Twain's Gutenberg ID enables one to see his works in the Gutenberg database. 
+
+gutenberg_metadata %>% filter(gutenberg_author_id==53)
+
+# Alternatively one could use the following command to view all of his works in a separate tab. 
+# gutenberg_metadata %>% filter(gutenberg_author_id==53) %>% View() 
+
+
+# The criteria for the books that will be analysed are:
+# it must be a written by Mark Twain;
+# it must be a fictional text;
+# it must have text;
+# it must be an individual book and not a collection.
+
+
+# I selected the following books:
+# The Adventures of Tom Sawyer,
+# The Adventures of Huckleberry Finn,
+# The Prince and the Pauper,
+# Tom Sawyer Abroad,
+# Tom Sawyer, Detective.
+
+# The following commands create data entries that can be referred to later on in the script. 
+
+
+Huck_Info.v <- gutenberg_metadata %>% 
+filter(gutenberg_author_id==53) %>%
+ filter(has_text & gutenberg_id=="76")
+
+Tom_Info.v <- gutenberg_metadata %>%
+ filter(gutenberg_author_id==53) %>%
+  filter(has_text & gutenberg_id=="74")
+
+Prince_Info.v <- gutenberg_metadata %>% 
+filter(gutenberg_author_id==53) %>%
+  filter(has_text & gutenberg_id=="1837")
+
+Abroad_Info.v <- gutenberg_metadata %>%
+ filter(gutenberg_author_id==53) %>%
+  filter(has_text & gutenberg_id=="91")
+
+Detective_Info.v <- gutenberg_metadata %>%
+ filter(gutenberg_author_id==53) %>%
+  filter(has_text & gutenberg_id=="93")
+
+# The following command will download the four books and create data entries that have the original text,
+# which is raw data and will be filtered later on. 
+
+Huck_RAW <- gutenberg_download(Huck_Info.v) 
+
+Tom_RAW <- gutenberg_download(Tom_Info.v) 
+
+Prince_RAW <- gutenberg_download(Prince_Info.v) 
+
+Abroad_RAW <- gutenberg_download(Abroad_Info.v) 
+
+Detective_RAW <- gutenberg_download(Detective_Info.v) 
+
+# Tidying up the textual data.
+# The command below will create a table where every word is on a separate row. 
+# Everything in the Data Environment with the addition of the keyword "Tidy" is a new data # entry that will be cleaned of grammar words later on in the script.
+
+Huck_Tidy.tb <- Huck_RAW %>% unnest_tokens(word,text)
+
+Prince_Tidy.tb <- Prince_RAW %>% unnest_tokens(word,text)
+
+Abroad_Tidy.tb <- Abroad_RAW %>% unnest_tokens(word,text)
+
+Detective_Tidy.tb <- Detective_RAW %>% unnest_tokens(word,text)
+
+Tom_Tidy.tb <- Tom_RAW %>% unnest_tokens(word,text)
+
+
+# Now to remove grammatical words (stop words) from the tidy data.
+# The reason for this is that grammatical words don't have a sentiment value. 
+
+Huck_Tidy.tb <- Huck_Tidy.tb %>% anti_join(stop_words)
+
+Prince_Tidy.tb <- Prince_Tidy.tb %>% anti_join(stop_words)
+
+Abroad_Tidy.tb <- Abroad_Tidy.tb %>% anti_join(stop_words)
+
+Tom_Tidy.tb <- Tom_Tidy.tb %>% anti_join(stop_words)
+
+Detective_Tidy.tb <- Detective_Tidy.tb %>% anti_join(stop_words)
+
+# Now to replace the Gutenberg IDs with the titles of the books. The point is to portray it 
+# clearly inside
+# the data what book the words correspond with (creates a new column with a book title).
+
+Huck_Tidy.tb <- gutenberg_metadata %>% filter(gutenberg_id %in% Huck_Info.v $gutenberg_id) %>%
+select(gutenberg_id,title) %>% 
+full_join(Huck_Tidy.tb) %>%
+ select(-gutenberg_id)
+
+Prince_Tidy.tb <- gutenberg_metadata %>%
+ filter(gutenberg_id %in% Prince_Info.v $gutenberg_id) %>%
+ select(gutenberg_id,title) %>% 
+full_join(Prince_Tidy.tb) %>% 
+select(-gutenberg_id)
+
+Abroad_Tidy.tb <- gutenberg_metadata %>%
+ filter(gutenberg_id %in% Abroad_Info.v $gutenberg_id) %>%
+ select(gutenberg_id,title) %>% 
+full_join(Abroad_Tidy.tb) %>%
+ select(-gutenberg_id)
+
+Detective_Tidy.tb <- gutenberg_metadata %>% 
+filter(gutenberg_id %in% Detective_Info.v $gutenberg_id) %>%
+select(gutenberg_id,title) %>%
+full_join(Detective_Tidy.tb) %>% 
+select(-gutenberg_id)
+
+Tom_Tidy.tb <- gutenberg_metadata %>%
+ filter(gutenberg_id %in% Tom_Info.v $gutenberg_id) %>%
+ select(gutenberg_id,title) %>% full_join(Tom_Tidy.tb) %>%
+ select(-gutenberg_id)
+
+# This creates a new column with the line number values that will be helpful for creating sentiment data tables. 
+
+Huck_Tidy.tb <- Huck_Tidy.tb %>% mutate(linenumber=row_number())
+
+Prince_Tidy.tb <- Prince_Tidy.tb %>% mutate(linenumber=row_number())
+
+Abroad_Tidy.tb <- Abroad_Tidy.tb %>% mutate(linenumber=row_number())
+
+Detective_Tidy.tb <- Detective_Tidy.tb %>% mutate(linenumber=row_number())
+
+Tom_Tidy.tb <- Tom_Tidy.tb %>% mutate(linenumber=row_number())
+
+
+# The following lines create sentiment value tables for each book.
+# Everything with the label "Sentiment" in the Data Environment is a sentiment analysis table.
+
+Huck_Sentiment <- Huck_Tidy.tb %>% inner_join(get_sentiments("bing"), by=c("word"="word")) %>%   
+  count(index = linenumber, sentiment) %>% spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+
+Prince_Sentiment <- Prince_Tidy.tb %>% inner_join(get_sentiments("bing"), by=c("word"="word")) %>%   
+  count(index = linenumber, sentiment) %>% spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+
+Abroad_Sentiment <- Abroad_Tidy.tb %>% inner_join(get_sentiments("bing"), by=c("word"="word")) %>%   
+  count(index = linenumber, sentiment) %>% spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+
+Detective_Sentiment <- Detective_Tidy.tb %>% inner_join(get_sentiments("bing"), by=c("word"="word")) %>%   
+  count(index = linenumber, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+
+Tom_Sentiment <-Tom_Tidy.tb %>% inner_join(get_sentiments("bing"), by=c("word"="word")) %>%   
+  count(index = linenumber, sentiment) %>% spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+
+
+# Now to create sentiment plots for each book. 
+# Each line creates a specific plot for a book.
+# The output will show a general map of positive vs. negative sentiment word choice throughout a book. 
+
+Huck_Sentiment %>% mutate(colour=ifelse(sentiment<0,"neg","pos")) %>%
+  ggplot(aes(index, sentiment, fill=colour)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_manual(values=c("neg"="red","pos"="green"))
+
+Prince_Sentiment %>% mutate(colour=ifelse(sentiment<0,"neg","pos")) %>%
+  ggplot(aes(index, sentiment, fill=colour)) +
+  geom_col(show.legend = FALSE) + 
+  scale_fill_manual(values=c("neg"="red","pos"="green"))
+
+Abroad_Sentiment %>% mutate(colour=ifelse(sentiment<0,"neg","pos")) %>%
+  ggplot(aes(index, sentiment, fill = colour )) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_manual(values=c("neg"="red","pos"="green"))
+
+Detective_Sentiment %>% mutate(colour=ifelse(sentiment<0,"neg","pos")) %>%
+  ggplot(aes(index, sentiment, fill=colour)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_manual(values=c("neg"="red","pos"="green"))
+
+Tom_Sentiment %>% mutate(colour=ifelse(sentiment<0,"neg","pos")) %>% 
+  ggplot(aes(index, sentiment, fill=colour)) +
+  geom_col(show.legend = FALSE) + 
+  scale_fill_manual(values=c("neg"="red","pos"="green"))
+
+########### PHASE TWO ################### 
+# Creating a graph that portrays the sum total sentiment values of the selected works side by side. 
+
+# The following command Creates a table of all the works of Mark Twain that are in the Gutenberg Library database
+# in order to select the proper row number for a later command that creates a table of the selected works.
+
+Total_Info.v <- gutenberg_metadata %>% filter(gutenberg_author_id==53)
+
+# Cross referencing the Gutenberg IDs and the row numbers for the books in the Gutenberg list of books by Mark Twain.
+# This helps write a neat and short command that creates a table with all the selected works in order to use it as
+# command variable later on. 
+# The following command will create a table with the selected works. 
+
+Total_Info.v <-gutenberg_metadata %>% filter(gutenberg_author_id==53) %>%
+  filter(has_text) %>%
+  filter(row_number() %in% c(2,3,14,5,6))
+
+# The following command downloads the selected works of Mark Twain and creates a table with all the words of the books.
+
+Total_RAW <- gutenberg_download(Total_Info.v)
+
+# The following command creates a tidy table of the selected works with every word token in a separate row.  
+
+Total_Tidy <- Total_RAW %>% unnest_tokens(word,text)
+
+# The following command removes grammatical words (stop words) from the tidy table (TWain_Selected_Tidy.tb).
+
+Total_Tidy <- Total_Tidy %>% anti_join(stop_words)
+
+# Now to replace the gutenberg IDs with the actual book names inside the table. The end result is an extra column 
+# with the name of the books corresponding with the words that appear in it. 
+
+Total_Tidy <- gutenberg_metadata %>% filter(gutenberg_id %in% Total_Info.v$gutenberg_id) %>%
+  select(gutenberg_id,title) %>% full_join(Total_Tidy) %>% 
+  select(-gutenberg_id)
+
+# Now to create a table with sentiment data of all the books. 
+
+Total_Sentiment <- Total_Tidy %>% inner_join(get_sentiments("bing"), by=c("word"="word")) %>%   
+  count(index = title, sentiment) %>% spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+
+# The last command creates a graphical output (plot) of the total sentiment values of the selected works in one graph.
+
+Total_Sentiment %>% mutate(colour=ifelse(sentiment<0,"neg","pos")) %>%   ggplot(aes(index, sentiment, fill=colour)) +
+geom_col(show.legend = FALSE) +  scale_fill_manual(values=c("neg"="red","pos"="green"))
+
+####### PHASE THREE #######
+### Portraying the most used negative and positive words per book into a graph #####
+
+# This arranges the data in the proper way and creates a new variable for later use
+
+Huck_Comparison <- Huck_Tidy.tb %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+Tom_Comparison <- Tom_Tidy.tb %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+Detective_Comparsion <- Detective_Tidy.tb %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+Abroad_Comparison <- Abroad_Tidy.tb %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+Prince_Comparison <- Prince_Tidy.tb %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+# Displays the words as a chart in the output.  
+
+Huck_Comparison %>%
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment", x = NULL) +
+  coord_flip()
+
+Prince_Comparison %>%
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment", x = NULL) +
+  coord_flip()
+
+Abroad_Comparison %>%
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment",  x = NULL) +
+  coord_flip()
+
+Detective_Comparsion %>%
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment",  x = NULL) +
+  coord_flip()
+
+Tom_Comparison %>%
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment",  x = NULL) +
+  coord_flip()
+
+### Extra code for data extraction ####
+
+# The command below will extract the specified data from the RStudio Data Environment to # a .csv file in the active work folder.
+# The variable "Tom_Tidy.tb" should be changed to whatever data is needed in addition to the 
+# extracted file name, which in this case is "TomTidy.csv". Also uncomment the command. 
+
+# write.table(Tom_Tidy.tb, file = "TomTidy.csv", sep = ",")
