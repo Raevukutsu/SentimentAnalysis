@@ -357,7 +357,7 @@ Tom_Comparison %>%
 
 ### Extra code for data extraction ####
 
-# The command below will extract the specified data from the RStudio Data Environment to # a .csv file in the active work folder.
+# The command below will extract the specified data from the RStudio Data Environment to a .csv file in the active work folder.
 # The variable "Tom_Tidy.tb" should be changed to whatever data is needed in addition to the 
 # extracted file name, which in this case is "TomTidy.csv". Also uncomment the command. 
 
