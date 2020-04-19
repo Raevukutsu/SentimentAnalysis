@@ -76,7 +76,7 @@ twain_sentiment %>% mutate(colour=ifelse(sentiment<0,"neg","pos")) %>%
 
 
 ### PHASE TWO ###
-## Displaying the sentiment values of the books in a linear.
+## Displaying the sentiment values of the books on a linear graph.
 
 twain_book_sentiment = twain_tidy %>%
   group_by(title) %>% 
@@ -113,15 +113,13 @@ twain_tidy %>%
   ggplot(aes(chunk, difference)) + geom_line() + facet_wrap(~title, scales = "free")
   
   
- ### PHASE THREE ###
- ## Plotting the most used sentiment words in the books. 
- # New data entries will be created so that every book can be analysed on its own.
+### PHASE THREE ###
+## Plotting the most used sentiment words in the books. 
+# New data entries will be created so that every book can be analysed on its own.
  
  gutenberg_metadata %>% filter(gutenberg_author_id==53)
  
- 
  # The following commands create data entries that can be referred to later on in the script. 
-
 
 Huck_Info.v <- gutenberg_metadata %>% filter(gutenberg_author_id==53) %>%
   filter(has_text & gutenberg_id=="76")
@@ -325,7 +323,7 @@ Tom_Comparison %>%
        x = NULL) +
   coord_flip()
 
-### Extra code for data extraction ####
+### Extra command for data extraction ####
 
 # The command below will extract the specified data from the R data environment to a .csv file
 # in the active work folder. 
