@@ -333,6 +333,3 @@ Tom_Comparison %>%
 # extracted file name, which in this case is "TomTidy.csv". 
 
 #write.table(Tom_Tidy.tb, file = "TomTidy.csv", sep = ",")
- 
- 
-
