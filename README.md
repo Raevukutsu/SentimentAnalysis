@@ -12,3 +12,7 @@ The plots won’t bite you, merely inform you of their emotional disposition tow
 Barcharts and jagged lines, of course.
 
 The mountainous curves of sentiments portray the unrelenting cliffs that many fictional characters had to endure, some hang on still. 
+
+The scipt was written by me, Roland Rae, for my BA thesis. 
+Additional credit goes to my supervisors Jane Klavan and Artjoms Šela. 
+Thank you for all the help. This was a huge project for me. 
