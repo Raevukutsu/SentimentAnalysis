@@ -15,4 +15,4 @@ The mountainous curves of sentiments portray the unrelenting cliffs that many fi
 
 The scipt was written by me, Roland Rae, for my BA thesis. 
 Additional credit goes to my supervisors Jane Klavan and Artjoms Šela. 
-Thank you for all the help. This was a huge project for me. 
+Thank you for all the help. This was a huge project for.
