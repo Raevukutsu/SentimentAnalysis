@@ -15,4 +15,4 @@ The mountainous curves of sentiments portray the unrelenting cliffs that many fi
 
 The scipt was written by Roland Rae. 
 Additional credit goes to my supervisors Jane Klavan and Artjoms Šela. 
-Thank you for all the help. This was a huge project for.
+Thank you for all the help. This was a huge project.
