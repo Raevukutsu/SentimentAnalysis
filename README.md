@@ -13,6 +13,6 @@ Barcharts and jagged lines, of course.
 
 The mountainous curves of sentiments portray the unrelenting cliffs that many fictional characters had to endure, some hang on still. 
 
-The scipt was written by me, Roland Rae, for my BA thesis. 
+The scipt was written by Roland Rae. 
 Additional credit goes to my supervisors Jane Klavan and Artjoms Šela. 
 Thank you for all the help. This was a huge project for.
