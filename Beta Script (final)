@@ -323,7 +323,30 @@ Tom_Comparison %>%
        x = NULL) +
   coord_flip()
 
-### Extra command for data extraction ####
+### PHASE FOUR ### 
+## Organizing data ##
+
+
+twain_book_sentiment = twain_tidy %>%
+  group_by(title) %>% 
+  # get overall word count
+  mutate(n_words = max(row_number())) %>% 
+  inner_join(get_sentiments("bing"), by=c("word"="word")) %>% 
+  count(title, n_words,sentiment) %>%
+  mutate(relative = n/n_words*100,
+         # In order to show negative seniment as negative values
+         relative=ifelse(sentiment=="negative", relative*-1, relative))
+
+## Plotting for PHASE FOUR ## 
+
+twain_book_sentiment %>% 
+  ggplot(aes(title, relative, group=sentiment, fill=sentiment)) +
+  geom_col(show.legend = FALSE,position = "dodge") +  scale_fill_manual(values=c("negative"="red","positive"="green")) +
+  labs(y="Relative sentiment words (in %)",
+       x="Book")
+
+
+### Extra command for data table extraction ####
 
 # The command below will extract the specified data from the R data environment to a .csv file
 # in the active work folder. 
