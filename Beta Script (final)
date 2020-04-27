@@ -1,14 +1,16 @@
-# The following script will do two things. Firstly it will create individual graphs of five books by Mark Twain.
-# Secondly it will create one graph with the the total sentiment of the selected works by Mark Twain. 
-# The aim is to create a visual overview of the sentiment values of the works using the program R and some extra
-# packages that are available through it. 
+# The following script will create three kids of graphs. 
+# Firstly, it will create individual graphs of the most frequent sentiment words in the five books by Mark Twain.
+# Secondly, it will create a graph that portrays the sentiment curves of the selected books. 
+# Thirdly, it will create one graph with the relative sentiment of the selected works by Mark Twain. 
+# The aim is to create a visual overview of the sentiment values of the works using the programming language R, RStudio, and some extra
+# packages that are available for R.  
 
 
 #### PHASE ONE ####
 # Getting the required software packages, downloading the books, and organizing the data. 
 
 # Packages to install below.
-# In case this is the first time you run this script or if packages seem to be missing please uncomment (remove #) the following lines.
+# In case this is the first time you run this script or if packages seem to be missing please uncomment (remove #) the following lines:
 #install.packages("tidyverse")
 #install.packages("tidytext")
 #install.packages("gutenbergr")
@@ -17,7 +19,7 @@
 #install.packages("stringr")
 
 
-# The following commands loads (activate) the required packages. This needs to be done every time one start RStudio.
+# The following commands loads (activates) the required packages. This needs to be done every time one start RStudio.
 
 library(tidyverse)
 library(tidytext)
